@@ -1,0 +1,6 @@
+@LocalGovProcessor_HostAddress = http://localhost:5049
+
+POST {{LocalGovProcessor_HostAddress}}/api/upload/
+Accept: multipart/form-data
+
+###
