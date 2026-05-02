@@ -111,7 +111,7 @@
 Поле `status` відображає стан пайплайну:
 `parsed` → `processing` → `processed` / `processing_failed` / `low_quality`
 
-![Діаграма бази даних](image/DB_Diagram.png)
+![Діаграма бази даних](https://github.com/YaroslavPetrushko/LocalGovProcessor/blob/9c7d948976e0941adbd6e09338142df4701717b7/image/DB_Diagram.png)
 
 Схема розрахована на розширення: коли LLM-пайплайн буде готовий, додаються колонки `goals_json` та `llm_processed_at` до таблиці `documents` без зміни існуючої структури.
 
@@ -190,7 +190,7 @@ dotnet run
 
 Відкрити у браузері: `http://localhost:5049`
 
-![Вебінтерфейс](image/Web_interface.png)
+![Вебінтерфейс](https://github.com/YaroslavPetrushko/LocalGovProcessor/blob/9c7d948976e0941adbd6e09338142df4701717b7/image/Web_interface.png)
 
 
 АБО
