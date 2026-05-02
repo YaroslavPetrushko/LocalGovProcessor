@@ -6,7 +6,16 @@ public class DocumentResult
     public string Region { get; set; } = string.Empty;
     public int Year { get; set; }
     public string DocType { get; set; } = string.Empty;
+    public DocumentMetadata Metadata { get; set; } = new();
     public List<DocumentSection> Sections { get; set; } = new();
+}
+
+public class DocumentMetadata
+{
+    public string Status { get; set; } = "parsed";
+    public int TotalSections { get; set; }
+    public Dictionary<string, int> SectionsByLevel { get; set; } = new();
+    public long ProcessingTimeMs { get; set; }
 }
 
 public class DocumentSection

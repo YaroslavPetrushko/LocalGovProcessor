@@ -31,8 +31,10 @@ public class UploadController : ControllerBase
 
         if (file.Length > 20 * 1024 * 1024)
             return BadRequest("Файл перевищує 20 MB.");
-
+        
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         var sections = _parser.Parse(file.OpenReadStream());
+        stopwatch.Stop(); 
 
         if (sections.Count == 0)
             return UnprocessableEntity("Документ не містить тексту або має непідтримувану структуру.");
@@ -43,6 +45,15 @@ public class UploadController : ControllerBase
             Region = region,
             Year = year,
             DocType = docType,
+            Metadata = new DocumentMetadata
+            {
+                TotalSections = sections.Count,
+                ProcessingTimeMs = stopwatch.ElapsedMilliseconds,
+                SectionsByLevel = sections
+                    .Where(s => s.Level > 0)
+                    .GroupBy(s => s.Level.ToString())
+                    .ToDictionary(g => g.Key, g => g.Count())
+            },
             Sections = sections
         };
 
