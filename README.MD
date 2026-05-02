@@ -152,7 +152,7 @@ region:        "Сумська область"
 year:          2026
 docType:       strategic_plan
 ```
-![Тестування через Postman](image/Screenshot 2026-05-02 094018.png "Скріншот прикладу відповіді від серверу на запит у Postman")
+![Тестування через Postman](image/Screenshot 2026-05-02 094018.png)
 
 ### Що можна додати далі
 
