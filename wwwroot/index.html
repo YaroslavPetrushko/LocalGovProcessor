@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalGov Processor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <main class="page">
+        <section class="hero">
+            <p class="eyebrow">LocalGov Processor</p>
+            <h1>Завантаження документів через простий веб-інтерфейс</h1>
+            <p class="lead">
+                Введіть дані громади, прикріпіть `.docx` або `.pdf` файл і відправте його на обробку.
+            </p>
+        </section>
+
+        <section class="card">
+            <form id="upload-form" class="form">
+                <label class="field">
+                    <span>Назва громади</span>
+                    <input type="text" name="communityName" placeholder="Наприклад: Бучанська громада" required>
+                </label>
+
+                <label class="field">
+                    <span>Регіон</span>
+                    <input type="text" name="region" placeholder="Наприклад: Київська область" required>
+                </label>
+
+                <div class="row">
+                    <label class="field">
+                        <span>Рік</span>
+                        <input type="number" name="year" min="2000" max="2100" value="2026" required>
+                    </label>
+
+                    <label class="field">
+                        <span>Тип документа</span>
+                        <input type="text" name="docType" placeholder="Стратегія / звіт / програма" required>
+                    </label>
+                </div>
+
+                <label class="field">
+                    <span>Файл документа</span>
+                    <input type="file" name="file" accept=".pdf,.docx" required>
+                </label>
+
+                <button type="submit" class="submit-button">Надіслати на обробку</button>
+            </form>
+
+            <div id="status" class="status" aria-live="polite"></div>
+        </section>
+
+        <section id="result-card" class="card result hidden">
+            <div class="result-header">
+                <h2>Результат</h2>
+                <span id="result-badge" class="badge">parsed</span>
+            </div>
+
+            <div id="result-summary" class="summary"></div>
+            <div id="sections" class="sections"></div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
