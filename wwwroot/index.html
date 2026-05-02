@@ -7,61 +7,119 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <main class="page">
-        <section class="hero">
-            <p class="eyebrow">LocalGov Processor</p>
-            <h1>Завантаження документів через простий веб-інтерфейс</h1>
-            <p class="lead">
-                Введіть дані громади, прикріпіть `.docx` або `.pdf` файл і відправте його на обробку.
-            </p>
-        </section>
+<main class="page">
+    <section class="hero">
+        <p class="eyebrow">LocalGov Processor</p>
+        <h1>Платформа обробки документів громад</h1>
+        <p class="lead">Завантажуйте документи, переглядайте та порівнюйте плани розвитку різних громад.</p>
+    </section>
 
-        <section class="card">
+    <!-- Tab navigation -->
+    <nav class="tabs" role="tablist">
+        <button class="tab active" role="tab" data-tab="upload" aria-selected="true">
+            <span class="tab-icon">↑</span> Завантажити
+        </button>
+        <button class="tab" role="tab" data-tab="browse" aria-selected="false">
+            <span class="tab-icon">☰</span> Перегляд
+        </button>
+        <button class="tab" role="tab" data-tab="compare" aria-selected="false">
+            <span class="tab-icon">⇄</span> Порівняти
+        </button>
+    </nav>
+
+    <!-- ── TAB: UPLOAD ── -->
+    <section id="tab-upload" class="tab-panel active" role="tabpanel">
+        <div class="card">
             <form id="upload-form" class="form">
                 <label class="field">
                     <span>Назва громади</span>
                     <input type="text" name="communityName" placeholder="Наприклад: Бучанська громада" required>
                 </label>
-
                 <label class="field">
                     <span>Регіон</span>
                     <input type="text" name="region" placeholder="Наприклад: Київська область" required>
                 </label>
-
                 <div class="row">
                     <label class="field">
                         <span>Рік</span>
                         <input type="number" name="year" min="2000" max="2100" value="2026" required>
                     </label>
-
                     <label class="field">
                         <span>Тип документа</span>
                         <input type="text" name="docType" placeholder="Стратегія / звіт / програма" required>
                     </label>
                 </div>
-
                 <label class="field">
                     <span>Файл документа</span>
                     <input type="file" name="file" accept=".pdf,.docx" required>
                 </label>
-
                 <button type="submit" class="submit-button">Надіслати на обробку</button>
             </form>
+            <div id="upload-status" class="status" aria-live="polite"></div>
+        </div>
 
-            <div id="status" class="status" aria-live="polite"></div>
-        </section>
-
-        <section id="result-card" class="card result hidden">
+        <section id="upload-result-card" class="card result hidden">
             <div class="result-header">
                 <h2>Результат</h2>
-                <span id="result-badge" class="badge">parsed</span>
+                <span id="upload-result-badge" class="badge">parsed</span>
             </div>
-
-            <div id="result-summary" class="summary"></div>
-            <div id="sections" class="sections"></div>
+            <div id="upload-result-summary" class="summary"></div>
+            <div id="upload-sections" class="sections"></div>
         </section>
-    </main>
+    </section>
 
-    <script src="app.js"></script>
+    <!-- ── TAB: BROWSE ── -->
+    <section id="tab-browse" class="tab-panel hidden" role="tabpanel">
+        <div class="card">
+            <div class="browse-header">
+                <h2>Збережені документи</h2>
+                <button class="icon-button" id="browse-refresh" title="Оновити список">↺</button>
+            </div>
+            <div id="browse-status" class="status" aria-live="polite"></div>
+            <div id="communities-list" class="communities-list"></div>
+        </div>
+
+        <section id="browse-detail-card" class="card result hidden">
+            <div class="result-header">
+                <h2 id="browse-detail-title">Документ</h2>
+                <span id="browse-detail-badge" class="badge">parsed</span>
+            </div>
+            <div id="browse-detail-summary" class="summary"></div>
+            <div id="browse-detail-sections" class="sections"></div>
+        </section>
+    </section>
+
+    <!-- ── TAB: COMPARE ── -->
+    <section id="tab-compare" class="tab-panel hidden" role="tabpanel">
+        <div class="card">
+            <h2>Порівняння документів</h2>
+            <p class="compare-hint">Оберіть два документи зі списку нижче.</p>
+            <div class="compare-selectors">
+                <div class="compare-slot" id="slot-a">
+                    <p class="slot-label">Документ А</p>
+                    <div class="slot-placeholder" id="slot-a-placeholder">Не обрано</div>
+                    <div id="slot-a-info" class="slot-info hidden"></div>
+                    <button class="clear-slot hidden" id="clear-a">✕ Очистити</button>
+                </div>
+                <div class="compare-divider">⇄</div>
+                <div class="compare-slot" id="slot-b">
+                    <p class="slot-label">Документ Б</p>
+                    <div class="slot-placeholder" id="slot-b-placeholder">Не обрано</div>
+                    <div id="slot-b-info" class="slot-info hidden"></div>
+                    <button class="clear-slot hidden" id="clear-b">✕ Очистити</button>
+                </div>
+            </div>
+            <div id="compare-status" class="status" aria-live="polite"></div>
+            <div id="compare-communities-list" class="communities-list"></div>
+        </div>
+
+        <section id="compare-result" class="card result hidden">
+            <h2>Порівняння</h2>
+            <div id="compare-columns" class="compare-columns"></div>
+        </section>
+    </section>
+</main>
+
+<script src="app.js"></script>
 </body>
 </html>
