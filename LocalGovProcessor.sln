@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalGovProcessor", "LocalGovProcessor.csproj", "{E0368C0B-F993-4299-A2F1-D5FF6B9C7E58}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E0368C0B-F993-4299-A2F1-D5FF6B9C7E58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0368C0B-F993-4299-A2F1-D5FF6B9C7E58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0368C0B-F993-4299-A2F1-D5FF6B9C7E58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0368C0B-F993-4299-A2F1-D5FF6B9C7E58}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
