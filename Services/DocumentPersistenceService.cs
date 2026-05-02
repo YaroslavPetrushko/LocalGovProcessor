@@ -32,6 +32,7 @@ public class DocumentPersistenceService
             var normalizedCommunityName = communityName.Trim();
             var normalizedRegion = region.Trim();
             var normalizedDocType = docType.Trim();
+            var normalizedFileName = Path.GetFileName(fileName);
 
             await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
 
@@ -55,7 +56,10 @@ public class DocumentPersistenceService
             var document = await _dbContext.Documents
                 .Include(x => x.Sections)
                 .SingleOrDefaultAsync(
-                    x => x.CommunityId == community.Id && x.Year == year && x.DocType == normalizedDocType,
+                    x => x.CommunityId == community.Id
+                        && x.Year == year
+                        && x.DocType == normalizedDocType
+                        && x.FileName == normalizedFileName,
                     cancellationToken);
 
             if (document == null)
@@ -74,7 +78,7 @@ public class DocumentPersistenceService
                 _dbContext.Sections.RemoveRange(document.Sections);
             }
 
-            document.FileName = Path.GetFileName(fileName);
+            document.FileName = normalizedFileName;
             document.FileFormat = normalizedExtension;
             document.Status = "parsed";
             document.RawText = BuildRawText(sections);

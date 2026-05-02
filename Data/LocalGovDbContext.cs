@@ -61,7 +61,7 @@ public class LocalGovDbContext : DbContext
             entity.HasIndex(x => x.CommunityId).HasDatabaseName("idx_documents_community");
             entity.HasIndex(x => x.Year).HasDatabaseName("idx_documents_year");
             entity.HasIndex(x => x.Status).HasDatabaseName("idx_documents_status");
-            entity.HasAlternateKey(x => new { x.CommunityId, x.Year, x.DocType })
+            entity.HasAlternateKey(x => new { x.CommunityId, x.Year, x.DocType, x.FileName })
                 .HasName("uq_document");
 
             entity.HasOne(x => x.Community)
