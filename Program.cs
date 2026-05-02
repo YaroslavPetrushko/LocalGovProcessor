@@ -1,11 +1,15 @@
+using LocalGovProcessor.Data;
 using LocalGovProcessor.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-// Register DocxParserService for dependency injection (scoped per request)
+builder.Services.AddDbContext<LocalGovDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("LocalGovProcessor")));
 builder.Services.AddScoped<DocxParserService>();
 builder.Services.AddScoped<PdfParserService>();
+builder.Services.AddScoped<DocumentPersistenceService>();
 
 var app = builder.Build();
 

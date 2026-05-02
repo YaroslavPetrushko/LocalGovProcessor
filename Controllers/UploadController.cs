@@ -10,21 +10,27 @@ public class UploadController : ControllerBase
 {
     private readonly DocxParserService _docxParser;
     private readonly PdfParserService _pdfParser;
+    private readonly DocumentPersistenceService _documentPersistenceService;
 
-    public UploadController(DocxParserService docxParser, PdfParserService pdfParser)
+    public UploadController(
+        DocxParserService docxParser,
+        PdfParserService pdfParser,
+        DocumentPersistenceService documentPersistenceService)
     {
         _docxParser = docxParser;
         _pdfParser = pdfParser;
+        _documentPersistenceService = documentPersistenceService;
     }
 
     // Accepts multipart/form-data: one .docx/.pdf file + community metadata fields
     [HttpPost]
-    public IActionResult Upload(
+    public async Task<IActionResult> Upload(
         IFormFile file,
         [FromForm] string communityName,
         [FromForm] string region,
         [FromForm] int year,
-        [FromForm] string docType)
+        [FromForm] string docType,
+        CancellationToken cancellationToken)
     {
         if (file == null || file.Length == 0)
             return BadRequest("Файл відсутній.");
@@ -43,6 +49,27 @@ public class UploadController : ControllerBase
 
         if (sections.Count == 0)
             return UnprocessableEntity("Документ не містить тексту або має непідтримувану структуру.");
+        
+        try
+        {
+            await _documentPersistenceService.SaveParsedDocumentAsync(
+                file.FileName,
+                extension ?? string.Empty,
+                communityName,
+                region,
+                year,
+                docType,
+                stopwatch.ElapsedMilliseconds,
+                sections,
+                cancellationToken);
+        }
+        catch (DatabaseConnectionException ex)
+        {
+            return Problem(
+                title: "Помилка підключення до PostgreSQL",
+                detail: ex.Message,
+                statusCode: StatusCodes.Status503ServiceUnavailable);
+        }
 
         var result = new DocumentResult
         {
