@@ -152,7 +152,7 @@ region:        "Сумська область"
 year:          2026
 docType:       strategic_plan
 ```
-![Тестування через Postman](image/Screenshot 2026-05-02 094018.png)
+![Тестування через Postman](https://github.com/YaroslavPetrushko/LocalGovProcessor/blob/c00b4de328b66a9608e114d137b211768a6f7fcd/image/Screenshot%202026-05-02%20094018.png)
 
 ### Що можна додати далі
 
