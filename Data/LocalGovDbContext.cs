@@ -21,10 +21,16 @@ public class LocalGovDbContext : DbContext
             entity.ToTable("communities");
             entity.HasKey(x => x.Id);
 
-            entity.Property(x => x.Id).HasColumnName("id");
+            entity.Property(x => x.Id)
+                .HasColumnName("id")
+                .HasDefaultValueSql("gen_random_uuid()")
+                .ValueGeneratedOnAdd();
             entity.Property(x => x.Name).HasColumnName("name").HasMaxLength(255);
             entity.Property(x => x.Region).HasColumnName("region").HasMaxLength(255);
-            entity.Property(x => x.CreatedAt).HasColumnName("created_at");
+            entity.Property(x => x.CreatedAt)
+                .HasColumnName("created_at")
+                .HasDefaultValueSql("now()")
+                .ValueGeneratedOnAdd();
 
             entity.HasIndex(x => x.Region).HasDatabaseName("idx_communities_region");
             entity.HasAlternateKey(x => new { x.Name, x.Region }).HasName("uq_community");
@@ -35,7 +41,10 @@ public class LocalGovDbContext : DbContext
             entity.ToTable("documents");
             entity.HasKey(x => x.Id);
 
-            entity.Property(x => x.Id).HasColumnName("id");
+            entity.Property(x => x.Id)
+                .HasColumnName("id")
+                .HasDefaultValueSql("gen_random_uuid()")
+                .ValueGeneratedOnAdd();
             entity.Property(x => x.CommunityId).HasColumnName("community_id");
             entity.Property(x => x.Year).HasColumnName("year");
             entity.Property(x => x.DocType).HasColumnName("doc_type").HasMaxLength(64);
@@ -44,7 +53,10 @@ public class LocalGovDbContext : DbContext
             entity.Property(x => x.Status).HasColumnName("status").HasMaxLength(32);
             entity.Property(x => x.RawText).HasColumnName("raw_text");
             entity.Property(x => x.ProcessingTimeMs).HasColumnName("processing_time_ms");
-            entity.Property(x => x.UploadedAt).HasColumnName("uploaded_at");
+            entity.Property(x => x.UploadedAt)
+                .HasColumnName("uploaded_at")
+                .HasDefaultValueSql("now()")
+                .ValueGeneratedOnAdd();
 
             entity.HasIndex(x => x.CommunityId).HasDatabaseName("idx_documents_community");
             entity.HasIndex(x => x.Year).HasDatabaseName("idx_documents_year");
@@ -63,7 +75,10 @@ public class LocalGovDbContext : DbContext
             entity.ToTable("sections");
             entity.HasKey(x => x.Id);
 
-            entity.Property(x => x.Id).HasColumnName("id");
+            entity.Property(x => x.Id)
+                .HasColumnName("id")
+                .HasDefaultValueSql("gen_random_uuid()")
+                .ValueGeneratedOnAdd();
             entity.Property(x => x.DocumentId).HasColumnName("document_id");
             entity.Property(x => x.Position).HasColumnName("position");
             entity.Property(x => x.Level).HasColumnName("level");
