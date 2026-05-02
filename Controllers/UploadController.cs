@@ -8,14 +8,16 @@ namespace LocalGovProcessor.Controllers;
 [Route("api/[controller]")]
 public class UploadController : ControllerBase
 {
-    private readonly DocxParserService _parser;
+    private readonly DocxParserService _docxParser;
+    private readonly PdfParserService _pdfParser;
 
-    public UploadController(DocxParserService parser)
+    public UploadController(DocxParserService docxParser, PdfParserService pdfParser)
     {
-        _parser = parser;
+        _docxParser = docxParser;
+        _pdfParser = pdfParser;
     }
 
-    // Accepts multipart/form-data: one .docx file + community metadata fields
+    // Accepts multipart/form-data: one .docx/.pdf file + community metadata fields
     [HttpPost]
     public IActionResult Upload(
         IFormFile file,
@@ -27,16 +29,16 @@ public class UploadController : ControllerBase
         if (file == null || file.Length == 0)
             return BadRequest("Файл відсутній.");
 
-        // Reject anything that isn't a .docx (PDF and other formats are a separate pipeline)
-        if (!file.FileName.EndsWith(".docx", StringComparison.OrdinalIgnoreCase))
-            return BadRequest("Приймаються лише .docx файли.");
+        var extension = Path.GetExtension(file.FileName);
+        if (!IsSupportedExtension(extension))
+            return BadRequest("Приймаються лише .docx та .pdf файли.");
 
         if (file.Length > 20 * 1024 * 1024)
             return BadRequest("Файл перевищує 20 MB.");
         
         // Track how long parsing takes — surfaced in metadata for observability
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-        var sections = _parser.Parse(file.OpenReadStream());
+        var sections = ParseSections(file, extension);
         stopwatch.Stop(); 
 
         if (sections.Count == 0)
@@ -63,5 +65,22 @@ public class UploadController : ControllerBase
         };
 
         return Ok(result);
+    }
+
+    private List<DocumentSection> ParseSections(IFormFile file, string? extension)
+    {
+        using var stream = file.OpenReadStream();
+
+        return extension?.ToLowerInvariant() switch
+        {
+            ".docx" => _docxParser.Parse(stream),
+            ".pdf" => _pdfParser.Parse(stream),
+            _ => new List<DocumentSection>()
+        };
+    }
+
+    private static bool IsSupportedExtension(string? extension)
+    {
+        return extension?.ToLowerInvariant() is ".docx" or ".pdf";
     }
 }

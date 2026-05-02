@@ -3,6 +3,7 @@
 /workspace.xml
 /bin
 /obj
+/artifacts
 # Rider ignored files
 /contentModel.xml
 /modules.xml
