@@ -8,39 +8,68 @@ namespace LocalGovProcessor.Controllers;
 [Route("api/[controller]")]
 public class UploadController : ControllerBase
 {
-    private readonly DocxParserService _parser;
+    private readonly DocxParserService _docxParser;
+    private readonly PdfParserService _pdfParser;
+    private readonly DocumentPersistenceService _documentPersistenceService;
 
-    public UploadController(DocxParserService parser)
+    public UploadController(
+        DocxParserService docxParser,
+        PdfParserService pdfParser,
+        DocumentPersistenceService documentPersistenceService)
     {
-        _parser = parser;
+        _docxParser = docxParser;
+        _pdfParser = pdfParser;
+        _documentPersistenceService = documentPersistenceService;
     }
 
-    // Accepts multipart/form-data: one .docx file + community metadata fields
+    // Accepts multipart/form-data: one .docx/.pdf file + community metadata fields
     [HttpPost]
-    public IActionResult Upload(
+    public async Task<IActionResult> Upload(
         IFormFile file,
         [FromForm] string communityName,
         [FromForm] string region,
         [FromForm] int year,
-        [FromForm] string docType)
+        [FromForm] string docType,
+        CancellationToken cancellationToken)
     {
         if (file == null || file.Length == 0)
             return BadRequest("Файл відсутній.");
 
-        // Reject anything that isn't a .docx (PDF and other formats are a separate pipeline)
-        if (!file.FileName.EndsWith(".docx", StringComparison.OrdinalIgnoreCase))
-            return BadRequest("Приймаються лише .docx файли.");
+        var extension = Path.GetExtension(file.FileName);
+        if (!IsSupportedExtension(extension))
+            return BadRequest("Приймаються лише .docx та .pdf файли.");
 
         if (file.Length > 20 * 1024 * 1024)
             return BadRequest("Файл перевищує 20 MB.");
         
         // Track how long parsing takes — surfaced in metadata for observability
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-        var sections = _parser.Parse(file.OpenReadStream());
+        var sections = ParseSections(file, extension);
         stopwatch.Stop(); 
 
         if (sections.Count == 0)
             return UnprocessableEntity("Документ не містить тексту або має непідтримувану структуру.");
+        
+        try
+        {
+            await _documentPersistenceService.SaveParsedDocumentAsync(
+                file.FileName,
+                extension ?? string.Empty,
+                communityName,
+                region,
+                year,
+                docType,
+                stopwatch.ElapsedMilliseconds,
+                sections,
+                cancellationToken);
+        }
+        catch (DatabaseConnectionException ex)
+        {
+            return Problem(
+                title: "Помилка підключення до PostgreSQL",
+                detail: ex.Message,
+                statusCode: StatusCodes.Status503ServiceUnavailable);
+        }
 
         var result = new DocumentResult
         {
@@ -63,5 +92,22 @@ public class UploadController : ControllerBase
         };
 
         return Ok(result);
+    }
+
+    private List<DocumentSection> ParseSections(IFormFile file, string? extension)
+    {
+        using var stream = file.OpenReadStream();
+
+        return extension?.ToLowerInvariant() switch
+        {
+            ".docx" => _docxParser.Parse(stream),
+            ".pdf" => _pdfParser.Parse(stream),
+            _ => new List<DocumentSection>()
+        };
+    }
+
+    private static bool IsSupportedExtension(string? extension)
+    {
+        return extension?.ToLowerInvariant() is ".docx" or ".pdf";
     }
 }

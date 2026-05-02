@@ -57,7 +57,7 @@ public class DocxParserService
         return sections;
     }
 
-    private int GetHeadingLevel(Paragraph paragraph, MainDocumentPart mainPart)
+    private int GetHeadingLevel(Paragraph paragraph, MainDocumentPart? mainPart)
     {
         // Strategy 1: Outline level is the most reliable signal.
         // Word stores levels as 0-based (0 = H1), value 9 means "body text" — skip it.
