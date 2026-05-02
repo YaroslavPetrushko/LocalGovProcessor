@@ -15,6 +15,7 @@ public class UploadController : ControllerBase
         _parser = parser;
     }
 
+    // Accepts multipart/form-data: one .docx file + community metadata fields
     [HttpPost]
     public IActionResult Upload(
         IFormFile file,
@@ -26,12 +27,14 @@ public class UploadController : ControllerBase
         if (file == null || file.Length == 0)
             return BadRequest("Файл відсутній.");
 
+        // Reject anything that isn't a .docx (PDF and other formats are a separate pipeline)
         if (!file.FileName.EndsWith(".docx", StringComparison.OrdinalIgnoreCase))
             return BadRequest("Приймаються лише .docx файли.");
 
         if (file.Length > 20 * 1024 * 1024)
             return BadRequest("Файл перевищує 20 MB.");
         
+        // Track how long parsing takes — surfaced in metadata for observability
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         var sections = _parser.Parse(file.OpenReadStream());
         stopwatch.Stop(); 
@@ -49,6 +52,8 @@ public class UploadController : ControllerBase
             {
                 TotalSections = sections.Count,
                 ProcessingTimeMs = stopwatch.ElapsedMilliseconds,
+                
+                // Group sections by heading level to give a quick structural overview
                 SectionsByLevel = sections
                     .Where(s => s.Level > 0)
                     .GroupBy(s => s.Level.ToString())

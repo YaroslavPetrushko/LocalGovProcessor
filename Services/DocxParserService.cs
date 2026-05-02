@@ -17,6 +17,7 @@ public class DocxParserService
         if (body == null)
             return sections;
 
+        // Accumulates text under the current heading until the next heading appears
         DocumentSection? currentSection = null;
 
         foreach (var paragraph in body.Elements<Paragraph>())
@@ -47,6 +48,7 @@ public class DocxParserService
                 }
                 else
                 {
+                    // Text with no parent heading — stored as level 0 (preamble or unstructured content)
                     sections.Add(new DocumentSection { Level = 0, Title = string.Empty, Content = text });
                 }
             }
@@ -57,9 +59,8 @@ public class DocxParserService
 
     private int GetHeadingLevel(Paragraph paragraph, MainDocumentPart mainPart)
     {
-        // 1. Check explicit Outline Level (w:outlineLvl)
-        // Word's internal outline levels are 0-based (0 = Level 1, 8 = Level 9). 
-        // Level 9 usually implies body text.
+        // Strategy 1: Outline level is the most reliable signal.
+        // Word stores levels as 0-based (0 = H1), value 9 means "body text" — skip it.
         var outlineLevel = paragraph.ParagraphProperties?.OutlineLevel?.Val?.Value;
         if (outlineLevel.HasValue && outlineLevel.Value < 9)
         {
@@ -69,7 +70,7 @@ public class DocxParserService
         var styleId = paragraph.ParagraphProperties?.ParagraphStyleId?.Val?.Value;
         if (string.IsNullOrEmpty(styleId)) return 0;
 
-        // 2. Check StyleId directly (Catches standard English templates)
+        // Strategy 2: StyleId like "Heading1", "Heading2" — works for English Word templates
         if (styleId.StartsWith("Heading", StringComparison.OrdinalIgnoreCase))
         {
             string levelString = styleId.Substring(7);
@@ -79,8 +80,8 @@ public class DocxParserService
             }
         }
 
-        // 3. Resolve the actual Style Name from the Styles Definitions
-        // This handles non-English Word installations or custom style IDs.
+        // Strategy 3: Resolve style by name from the styles registry.
+        // Handles non-English Word (e.g. Ukrainian "Заголовок 1") or custom style IDs.
         var stylesPart = mainPart?.StyleDefinitionsPart;
         if (stylesPart?.Styles != null)
         {
